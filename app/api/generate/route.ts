@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt } = await request.json();
+    const { prompt, steps = 20, guidanceScale = 7.5, width = 1024, height = 1024 } = await request.json();
 
     if (!prompt || typeof prompt !== 'string') {
       return NextResponse.json(
@@ -34,8 +34,10 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         inputs: prompt,
         parameters: {
-          num_inference_steps: 20,
-          guidance_scale: 7.5,
+          num_inference_steps: Math.min(Math.max(steps, 10), 50),
+          guidance_scale: Math.min(Math.max(guidanceScale, 1), 20),
+          width: Math.min(Math.max(width, 512), 1344),
+          height: Math.min(Math.max(height, 512), 1344),
         },
       }),
     });
